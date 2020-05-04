@@ -9,7 +9,7 @@ class HashTableEntry:
         self.next = None
 
 
-class HashTable:
+class HashTable(object):
     """
     A hash table that with `capacity` buckets
     that accepts string keys
@@ -17,12 +17,18 @@ class HashTable:
     Implement this.
     """
 
+    def __init__(self, capacity):
+        self.storage = [None] * capacity
+        self.capacity = capacity
+
     def fnv1(self, key):
         """
         FNV-1 64-bit hash function
 
         Implement this, and/or DJB2.
         """
+    # To make your FNV-1 hash correct, add this as the last line of the loop:
+    # total &= 0xffffffffffffffff  # 64-bit (16 f's)
 
     def djb2(self, key):
         """
@@ -30,13 +36,20 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
+        hash = 5381
+        for c in key:
+            hash = (hash * 33) + ord(c)
+        return hash & 0xffffffff
+
+    # To make your DJB2 hash correct, add this as the last line of the loop:
+    # total &= 0xffffffff  # 32-bit (8 f's)
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
+        # return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
     def put(self, key, value):
@@ -47,6 +60,23 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        new_entry = HashTableEntry(key, value)
+        existing_entry = self.storage[index]
+
+        if existing_entry:
+            last_entry = None
+            while existing_entry:
+                if existing_entry.key == key:
+                    # Found an existing key, can replace the value
+                    existing_entry.value = value
+                    return
+                last_entry = existing_entry
+                existing_entry = existing_entry.next
+                # Did not find existing key, add to end of storage
+            last_entry.next = new_entry
+        else:
+            self.storage[index] = new_entry
 
     def delete(self, key):
         """
@@ -56,6 +86,21 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        existing_entry = self.storage[index]
+        if existing_entry:
+            last_entry = None
+            while existing_entry:
+                if existing_entry.pair.key == key:
+                    if last_entry:
+                        last_entry.next = existing_entry.next
+                    else:
+                        self.storage[index] = existing_entry.next
+                last_entry = existing_entry
+                existing_entry = existing_entry.next
+        else:
+            # key is not found
+            print('No key found')
 
     def get(self, key):
         """
@@ -65,6 +110,16 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        existing_entry = self.storage[index]
+        if existing_entry:
+            while existing_entry:
+                if existing_entry.key == key:
+                    return existing_entry.value
+                existing_entry = existing_entry.next
+        else:
+            # key is not found
+            return None
 
     def resize(self):
         """
@@ -72,7 +127,17 @@ class HashTable:
         rehash all key/value pairs.
 
         Implement this.
-        """
+
+        ht2 = HashTable(len(self.storage)*2)
+        for i in range(len(self.storage)):
+            if self.storage[i] is None:
+                continue
+
+            for kvp in self.storage[i]:
+                ht2.add(kvp[0], kvp[1])
+        self.storage = ht2.storage
+"""
+
 
 if __name__ == "__main__":
     ht = HashTable(2)
