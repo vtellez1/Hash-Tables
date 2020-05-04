@@ -91,7 +91,7 @@ class HashTable(object):
         if existing_entry:
             last_entry = None
             while existing_entry:
-                if existing_entry.pair.key == key:
+                if existing_entry.key == key:
                     if last_entry:
                         last_entry.next = existing_entry.next
                     else:
@@ -127,16 +127,18 @@ class HashTable(object):
         rehash all key/value pairs.
 
         Implement this.
+        """
+        prev_storage = self.storage
+        # Double capacity
+        self.capacity *= 2
+        # Update storage with new capacity
+        self.storage = [None] * self.capacity
 
-        ht2 = HashTable(len(self.storage)*2)
-        for i in range(len(self.storage)):
-            if self.storage[i] is None:
-                continue
-
-            for kvp in self.storage[i]:
-                ht2.add(kvp[0], kvp[1])
-        self.storage = ht2.storage
-"""
+        # Look through each key value pair in previous storage
+        for kvp in prev_storage:
+            # If KeyValuePair exist:
+            if kvp:
+                self.put(kvp.key, kvp.value)
 
 
 if __name__ == "__main__":
