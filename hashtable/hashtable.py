@@ -59,22 +59,38 @@ class HashTable(object):
         Hash collisions should be handled with Linked List Chaining.
 
         Implement this.
+
+        Collision Resolution by Chaining
+        Put:
+            Find the hash index
+            Search the list for the key
+            If it's there, replace the value
+            If it's not, append a new record to the list
         """
+        # Find index based on key being passed in
         index = self.hash_index(key)
-        new_entry = HashTableEntry(key, value)
+        # Check storage with above index
         existing_entry = self.storage[index]
 
+        new_entry = HashTableEntry(key, value)
+
+        # Check to see if that hash index exists:
         if existing_entry:
             last_entry = None
+            # Look through this hash index list
             while existing_entry:
+                # Search list for key
                 if existing_entry.key == key:
                     # Found an existing key, can replace the value
                     existing_entry.value = value
                     return
+                # Continue looking through list until None
                 last_entry = existing_entry
                 existing_entry = existing_entry.next
-                # Did not find existing key, add to end of storage
+            # Did not find existing key, add to end of this hash index list
             last_entry.next = new_entry
+
+        # If hash index doesn't exists, can add new entry in that spot
         else:
             self.storage[index] = new_entry
 
@@ -85,21 +101,37 @@ class HashTable(object):
         Print a warning if the key is not found.
 
         Implement this.
+
+        Collision Resolution by Chaining
+        Delete:
+            Find the hash index
+            Search the list for the key
+            If found, delete the node from the list, (return the node or value?)
+            Else return None
         """
+        # Find index based on key being passed in
         index = self.hash_index(key)
+        # Check storage with above index
         existing_entry = self.storage[index]
+
+        # Check to see if that hash index exists:
         if existing_entry:
             last_entry = None
+            # Look through this hash index list
             while existing_entry:
+                # Search list for key
                 if existing_entry.key == key:
+                    # If matches key, set the last entry's next in list to next hash index--deletes but moves following up
                     if last_entry:
                         last_entry.next = existing_entry.next
                     else:
+                        # if nothing else in list, set the next hash index to current spot
                         self.storage[index] = existing_entry.next
+                # Continue looking through list until None
                 last_entry = existing_entry
                 existing_entry = existing_entry.next
         else:
-            # key is not found
+            # key is not found, print warning
             print('No key found')
 
     def get(self, key):
@@ -109,16 +141,31 @@ class HashTable(object):
         Returns None if the key is not found.
 
         Implement this.
+
+        Collision Resolution by Chaining
+        Get:
+            Find the hash index
+            Search the list for the key
+            If found, return the value
+            Else return None
         """
+        # Find index based on key being passed in
         index = self.hash_index(key)
+        # Check storage with above index
         existing_entry = self.storage[index]
+
+        # Check to see if that hash index exists:
         if existing_entry:
+            # Look through this hash index list
             while existing_entry:
+                # Search list for key
                 if existing_entry.key == key:
+                    # If found, return value
                     return existing_entry.value
+                # Continue looking through list until None
                 existing_entry = existing_entry.next
         else:
-            # key is not found
+            # key is not found, return None
             return None
 
     def resize(self):
