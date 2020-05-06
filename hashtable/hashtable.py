@@ -20,6 +20,7 @@ class HashTable(object):
     def __init__(self, capacity):
         self.storage = [None] * capacity
         self.capacity = capacity
+        self.elements = 0
 
     def fnv1(self, key):
         """
@@ -52,11 +53,20 @@ class HashTable(object):
         # return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
+    def load_factor(self):
+        # Load Factor is number of elements in a list divided by the number of slots (capacity)
+        return self.elements/self.capacity
+
     def put(self, key, value):
         """
         Store the value with the given key.
 
         Hash collisions should be handled with Linked List Chaining.
+
+        Automatic resizing:
+            When you put(): 
+                if the load > 0.7:
+                double the size of the hashtable        
 
         Implement this.
 
@@ -89,16 +99,30 @@ class HashTable(object):
                 existing_entry = existing_entry.next
             # Did not find existing key, add to end of this hash index list
             last_entry.next = new_entry
+            self.elements += 1
+            # Automatically resize by double if load factor is greater than .7
+            if self.load_factor() > 0.7:
+                self.resize(self.capacity * 2)
 
         # If hash index doesn't exists, can add new entry in that spot
         else:
             self.storage[index] = new_entry
+            self.elements += 1
+            # Automatically resize by double if load factor is greater than .7
+            if self.load_factor() > 0.7:
+                self.resize(self.capacity * 2)
 
     def delete(self, key):
         """
         Remove the value stored with the given key.
 
         Print a warning if the key is not found.
+
+        Automatic resizing (STRETCH):
+            When you delete(): 
+              if the load < 0.2:
+                if size > minimum (8):
+                    halve the size of the hashtable down (to the minimum, at most) 
 
         Implement this.
 
@@ -206,16 +230,20 @@ if __name__ == "__main__":
     ht = HashTable(2)
 
     ht.put("line_1", "Tiny hash table")
+    print(ht.load_factor())
+    print(ht.capacity)
     ht.put("line_2", "Filled beyond capacity")
+    print(ht.load_factor())
+    print(ht.capacity)
     ht.put("line_3", "Linked list saves the day!")
-
     print("")
 
     # Test storing beyond capacity
     print(ht.get("line_1"))
     print(ht.get("line_2"))
     print(ht.get("line_3"))
-
+    print(ht.load_factor())
+    print(ht.capacity)
     # Test resizing
     old_capacity = len(ht.storage)
     ht.resize(1024)
