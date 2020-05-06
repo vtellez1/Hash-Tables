@@ -168,24 +168,38 @@ class HashTable(object):
             # key is not found, return None
             return None
 
-    def resize(self):
+    def resize(self, new_capacity):
         """
-        Doubles the capacity of the hash table and
+        Updates capacity of the hash table based on new_capacity and
         rehash all key/value pairs.
 
         Implement this.
         """
-        prev_storage = self.storage
-        # Double capacity
-        self.capacity *= 2
-        # Update storage with new capacity
-        self.storage = [None] * self.capacity
 
+        prev_storage = self.storage
+
+        # Step 1: make a new, bigger table/array
+        # ....Update capacity on new capacity
+        # ....Update storage with new capacity
+
+        self.capacity = new_capacity
+        self.storage = [None] * new_capacity
+
+        # Step 2: go through all the old elements, and hash into the new list
         # Look through each key value pair in previous storage
-        for kvp in prev_storage:
-            # If KeyValuePair exist:
-            if kvp:
-                self.put(kvp.key, kvp.value)
+        for i in range(len(prev_storage)):
+            # Check previous storage with i as index
+            existing_entry = prev_storage[i]
+
+            # Check to see if that hash index exists:
+            if existing_entry:
+                # Look through this hash index list
+                while existing_entry:
+                    if existing_entry.key:
+                        # If found, rehash to new storage
+                        self.put(existing_entry.key, existing_entry.value)
+                    # Continue looking through list until None
+                    existing_entry = existing_entry.next
 
 
 if __name__ == "__main__":
@@ -204,7 +218,7 @@ if __name__ == "__main__":
 
     # Test resizing
     old_capacity = len(ht.storage)
-    ht.resize()
+    ht.resize(1024)
     new_capacity = len(ht.storage)
 
     print(f"\nResized from {old_capacity} to {new_capacity}.\n")
